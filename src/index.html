@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List</title>
+    <link rel="stylesheet" href="output.css">
+    <link rel="stylesheet" href="./icomoon/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-white">
+    <header class="py-5 bg-orange-light">
+        <img src="./logo.svg" alt="" class="mx-auto">
+    </header>
+    <div class="container" id="container">
+        <main class="pt-16 pb-44 h-[calc(100vh-100px)] ">
+            <form  class="flex mb-10" @submit.prevent="addTodo">
+                <input 
+                v-model="message" id="input" required
+                    class="pl-9 py-4 rounded-l-full w-full outline-none bg-orange-50 text-black placeholder:text-gray-300 text-3.5xl font-normal leading-normal"
+                    type="text" placeholder="What do you need to do?">
+                <button type="submit"
+                  class="rounded-r-full px-6 text-gray-400 bg-blue font-semibold tracking-[1.9px] uppercase text-[38px] hover:bg-orange-400 duration-300"
+                 >Add</button>
+            </form>
+            <div class="px-[50px] bg-orange-50 rounded-[50px] flex items-end flex-col gap-6">
+                <div class="tab_section w-full">
+                
+                    <div class="plan_type_cont w-full flex gap-0">
+                      <button class="plan__case__btn w-full py-4 px-6  mx-0 bg-stone-300 focus:bg-stone-300 hover:bg-stone-300 transition-all delay-100" id="todo_btn" onclick="openPan('todos', 'todo_btn')">All</button>
+                      <button class="plan__case__btn w-full py-4 px-6 bg-stone-400 mx-0 focus:bg-stone-300 hover:bg-stone-300 transition-all delay-100" id="new_btn" onclick="openPan('new', 'new_btn')">New</button>
+                      <button class="plan__case__btn w-full py-4 px-6 bg-stone-400 mx-0 focus:bg-stone-300 hover:bg-stone-300 transition-all delay-100" id="removed_btn" onclick="openPan('removed', 'removed_btn')">Removed</button>
+                      <button class="plan__case__btn w-full py-4 px-6 bg-stone-400 mx-0 focus:bg-stone-300 hover:bg-stone-300 transition-all delay-100" id="done_btn" onclick="openPan('done', 'done_btn')">Done</button>
+                    </div>
+                    <div id="new" id="sortableList" class="plan" style="display:none">
+                      
+                    </div>
+                    <div id="removed" id="sortableList" class="plan" style="display:none">
+
+                    </div>
+                    
+                    <div id="done" id="sortableList" class="plan hidden" style="display:none">
+
+                    </div>
+               </div>
+                <div id="todos" class="plan w-full block">
+                    <div class="item py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0" v-for="item in list">
+                    <div class="flex items-center gap-2">
+                        <i @click="doneTap(item.id)" class="cursor-pointer transition-color duration-300 
+                         text-gray-100 text-[64px]" :class=" isCompleted ? 'icon-checked' : 'icon-checkbox' "></i>
+              <form>
+              <input type="text"  v-model="item.title" id="input_plan" class="w-full bg-inherit outline-none text-3.5xl font-norma text-dark">
+              </form>
+            </div>
+            <button class="group"> 
+                        <span class="icon-trash text-[32px] text-red opacity-30 hover:opacity-100 duration-300"></span>
+                    </button>
+                    </div>
+                  
+                    </div>
+                    <button v-if="list.length" id="clearTask" @click="clearTask"
+                    class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300">
+                    <span class="icon-clear"></span>
+                    Clear Completed4
+                </button>
+                </div>
+               
+            </div>
+         
+              </main>
+              
+    </div>
+
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
