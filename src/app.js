@@ -8,15 +8,20 @@ createApp({
     counter = ref(1);
     const step = ref(1);
     function addTodo() {
-      list.value.unshift({
-        id: counter.value,
-        title: message.value,
-        isCompleted: false,
-      });
-      counter.value++;
-      message.value = "";
-      step.value = 1;
-      saveTask();
+      if (message.value.trim() == "") {
+        alert("please write something!!!");
+        message.value = "";
+      } else {
+        list.value.unshift({
+          id: counter.value,
+          title: message.value,
+          isCompleted: false,
+        });
+        counter.value++;
+        message.value = "";
+        step.value = 1;
+        saveTask();
+      }
     }
     function clearTask() {
       list.value = [];
@@ -24,15 +29,15 @@ createApp({
       localStorage.clear("removed");
     }
     function getNewsList() {
-      return [...list.value.filter(el=> !el.isCompleted)]
+      return [...list.value.filter((el) => !el.isCompleted)];
     }
     function doneTap(id) {
-      let item = list.value.find(el => el.id === id)
-      item.isCompleted = !item.isCompleted
+      let item = list.value.find((el) => el.id === id);
+      item.isCompleted = !item.isCompleted;
       // if (!list.value[inx].isCompleted) {
       //    list.value[inx].isCompleted = !list.value[inx].isCompleted;
       //   // setTimeout(() => {
-         
+
       //   // }, 2000);
       // } else {
       //   list.value[inx].isCompleted = !list.value[inx].isCompleted;
