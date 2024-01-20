@@ -14,5 +14,8 @@
     "postcss": "^8.4.33",
     "prettier": "3.2.3",
     "tailwindcss": "^3.4.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

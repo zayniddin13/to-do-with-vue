@@ -1,5 +1,5 @@
-const { createApp, ref, watch, computed } = Vue;
-
+const { createApp, ref, watch, computed, onMounted } = Vue;
+const { debounce } = _;
 createApp({
   setup() {
     let list = ref([]);
@@ -7,6 +7,32 @@ createApp({
     const message = ref("");
     counter = ref(1);
     const step = ref(1);
+    const input = ref();
+    onMounted(() => {
+      input.value.focus();
+    });
+    let newDrag;
+    let remDrag;
+    function rmHandleDragStart(i) {
+      remDrag = i;
+    }
+    function handleDragStart(i) {
+      newDrag = i;
+    }
+    const handleDragOver = (event) => {
+      event.preventDefault();
+    };
+    function handleDrop(i) {
+      let item = list.value[i];
+      list.value[i] = list.value[newDrag];
+      list.value[newDrag] = item;
+    }
+    function rmHandleDrop(i) {
+      console.log('item dropped');
+      let remItem = removedList.value[i];
+      removedList.value[i] = removedList.value[remDrag];
+      removedList.value[remDrag] = remItem;
+    }
     function addTodo() {
       if (message.value.trim() == "") {
         alert("please write something!!!");
@@ -16,6 +42,7 @@ createApp({
           id: counter.value,
           title: message.value,
           isCompleted: false,
+          checked: false,
         });
         counter.value++;
         message.value = "";
@@ -25,27 +52,33 @@ createApp({
     }
     function clearTask() {
       list.value = [];
+      removedList.value = [];
       localStorage.clear("plan");
       localStorage.clear("removed");
     }
-    function getNewsList() {
-      return [...list.value.filter((el) => !el.isCompleted)];
-    }
+    let timeId;
     function doneTap(id) {
       let item = list.value.find((el) => el.id === id);
-      item.isCompleted = !item.isCompleted;
-      // if (!list.value[inx].isCompleted) {
-      //    list.value[inx].isCompleted = !list.value[inx].isCompleted;
-      //   // setTimeout(() => {
+      item.checked = !item.checked;
+      console.log(item.checked);
 
-      //   // }, 2000);
-      // } else {
-      //   list.value[inx].isCompleted = !list.value[inx].isCompleted;
-      // }
+      if (item.checked) {
+        console.log("a");
+        console.log(item.isCompleted);
+        timeId = setTimeout(() => {
+          item.isCompleted = true;
+        }, 2000);
+      } else {
+        console.log("b");
+        clearTimeout(timeId);
+        item.checked = false;
+        item.isCompleted = false;
+      }
       saveTask();
     }
     function removedTab(id) {
       removedList.value.unshift(list.value.find((item) => item.id == id));
+      console.log(removedList.value);
       list.value = list.value.filter((item) => item.id != id);
       saveTask();
     }
@@ -57,9 +90,9 @@ createApp({
       });
       removedList.value = newArr.value.filter((item) => item.id != id);
     }
+    const debouncedSaveTask = debounce(saveTask, 1000);
     function editTask(i) {
-      console.log(list.value[i]);
-      saveTask();
+      debouncedSaveTask();
     }
 
     function saveTask() {
@@ -94,7 +127,12 @@ createApp({
       saveTask,
       getTask,
       editTask,
-      getNewsList,
+      input,
+      handleDragStart,
+      handleDragOver,
+      handleDrop,
+      rmHandleDragStart,
+      rmHandleDrop,
     };
   },
 }).mount("#container");
