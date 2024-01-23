@@ -28,7 +28,7 @@ createApp({
       list.value[newDrag] = item;
     }
     function rmHandleDrop(i) {
-      console.log('item dropped');
+      console.log("item dropped");
       let remItem = removedList.value[i];
       removedList.value[i] = removedList.value[remDrag];
       removedList.value[remDrag] = remItem;
@@ -63,22 +63,20 @@ createApp({
       console.log(item.checked);
 
       if (item.checked) {
-        console.log("a");
-        console.log(item.isCompleted);
         timeId = setTimeout(() => {
           item.isCompleted = true;
+          saveTask();
         }, 2000);
       } else {
         console.log("b");
         clearTimeout(timeId);
         item.checked = false;
         item.isCompleted = false;
+        saveTask();
       }
-      saveTask();
     }
     function removedTab(id) {
       removedList.value.unshift(list.value.find((item) => item.id == id));
-      console.log(removedList.value);
       list.value = list.value.filter((item) => item.id != id);
       saveTask();
     }
@@ -113,6 +111,12 @@ createApp({
         });
       }
     }
+    let done = computed(() => {
+      return list.value.some((item) => item.isCompleted == true);
+    });
+    let newItems = computed(() => {
+      return list.value.some((item) => item.isCompleted == false);
+    });
     getTask();
     return {
       addTodo,
@@ -133,6 +137,8 @@ createApp({
       handleDrop,
       rmHandleDragStart,
       rmHandleDrop,
+      done,
+      newItems,
     };
   },
 }).mount("#container");

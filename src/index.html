@@ -12,6 +12,25 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
       rel="stylesheet"
     />
+    <style>
+      .fade-enter-active,
+      .fade-leave-active {
+        animation: fade_in 0.5s ease;
+      }
+
+      .fade-enter-from,
+      .fade-leave-to {
+        animation: fade_in 0.5s reverse;
+      }
+      @keyframes fade_in {
+        0% {
+          width: 0;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+    </style>
   </head>
 
   <body class="bg-white">
@@ -37,54 +56,53 @@
             Add
           </button>
         </form>
-        <div
-          v-if="!list.length"
-          class="no_data w-full h-24 bg-amber-400 rounded-md flex justify-center items-center"
-        >
-          <h1 class="font-sans font-semibold text-6xl">No data</h1>
-        </div>
-        <div v-if="list.length">
-          <div
-            class="px-[50px] bg-orange-50 rounded-[50px] flex items-end flex-col gap-6"
-          >
-            <div class="tab_section w-full">
-              <div class="plan_type_cont w-full flex gap-0">
-                <button
-                  class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
-                  :class="step==1 ? 'bg-stone-300' : 'bg-stone-400'"
-                  @click="step = 1"
-                >
-                  All
-                </button>
-                <button
-                  class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
-                  :class="step==2 ? 'bg-stone-300' : 'bg-stone-400'"
-                  @click="step = 2"
-                >
-                  New
-                </button>
-                <button
-                  class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
-                  :class="step==3 ? 'bg-stone-300': 'bg-stone-400'"
-                  @click="step = 3"
-                >
-                  Removed
-                </button>
-                <button
-                  class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
-                  :class="step==4 ? 'bg-stone-300': 'bg-stone-400'"
-                  @click="step = 4"
-                >
-                  Done
-                </button>
+        <div>
+          <!-- v-if="list && list.length" -->
+          <div v-if="list.length">
+            <div
+              class="px-[50px] bg-orange-50 rounded-[50px] flex items-end flex-col gap-6"
+            >
+              <div class="tab_section w-full">
+                <div class="plan_type_cont w-full flex gap-0">
+                  <button
+                    class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
+                    :class="step==1 ? 'bg-stone-300' : 'bg-stone-400'"
+                    @click="step = 1"
+                  >
+                    All
+                  </button>
+                  <button
+                    class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
+                    :class="step==2 ? 'bg-stone-300' : 'bg-stone-400'"
+                    @click="step = 2"
+                  >
+                    New
+                  </button>
+                  <button
+                    class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
+                    :class="step==3 ? 'bg-stone-300': 'bg-stone-400'"
+                    @click="step = 3"
+                  >
+                    Removed
+                  </button>
+                  <button
+                    class="plan__case__btn w-full py-4 px-6 mx-0 hover:bg-stone-300 transition-all delay-100"
+                    :class="step==4 ? 'bg-stone-300': 'bg-stone-400'"
+                    @click="step = 4"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
-
-              <div class="py-3">
-                <div id="new" class="plan" v-if="step===2">
+              <div id="new" class="plan w-full" v-if="step===2">
+                <div v-show="!newItems" class="text-5xl font-sans text-red">
+                  no data
+                </div>
+                <div v-show="newItems">
                   <template v-for="(item, index) in list">
                     <div
-                      v-if="!item.isCompleted"
                       class="item py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0"
+                      v-if="!item.isCompleted"
                     >
                       <div
                         class="flex items-center w-full"
@@ -98,32 +116,66 @@
                           :class="item.checked ? 'icon-checked text-orange'  : 'icon-checkbox text-gray-100'"
                           class="cursor-pointer transition-color duration-300 text-[64px]"
                         ></i>
-                        <input
-                          type="text"
-                          v-model="item.title"
-                          id="input_plan"
-                          class="w-full bg-inherit outline-none text-3.5xl font-norma"
-                          :class="item.checked ? 'text-gray-100 line-through'  : 'text-dark'"
-                        />
+                        <div class="relative w-full">
+                          <transition name="fade">
+                            <div
+                              v-if="item.checked"
+                              class="w-full absolute top-6 z-10 h-1 bg-gray-100"
+                            ></div>
+                          </transition>
+                          <input
+                            @input="editTask(index)"
+                            type="text"
+                            :readonly="item.isCompleted"
+                            v-model="item.title"
+                            id="input_plan"
+                            class="w-full relative z-0 bg-inherit outline-none text-3.5xl font-normal"
+                            :class="item.checked ? 'text-gray-100'  : 'text-dark'"
+                          />
+                        </div>
+
+                        <button
+                          @click="removedTab(item.id)"
+                          class="group w-1/12"
+                        >
+                          <span
+                            class="icon-trash text-[32px] text-red opacity-30 hover:opacity-100 duration-300"
+                          ></span>
+                        </button>
                       </div>
-                      <button @click="removedTab(item.id)" class="group">
-                        <span
-                          class="icon-trash text-[32px] text-red opacity-30 hover:opacity-100 duration-300"
-                        ></span>
-                      </button>
                     </div>
                   </template>
+                  <button
+                    v-if="list.length"
+                    id="clearTask"
+                    @click="clearTask"
+                    class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300"
+                  >
+                    <span class="icon-clear"></span>
+                    Clear Completed
+                  </button>
                 </div>
-                <div id="removed" class="plan" v-else-if="step === 3">
+              </div>
+
+              <div id="removed" class="plan w-full" v-else-if="step === 3">
+                <div
+                  v-if="!removedList.length"
+                  class="text-5xl font-sans text-red"
+                >
+                  no data
+                </div>
+                <div v-if="removedList.length">
                   <div
                     class="py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0"
                     v-for="(item, index) in removedList"
                   >
-                    <div class="flex items-center w-full"
-                     draggable="true"
-                    @dragstart="rmHandleDragStart(index)"
-                     @dragover.prevent="handleDragOver"
-                    @drop="rmHandleDrop(index)">
+                    <div
+                      class="flex items-center w-full"
+                      draggable="true"
+                      @dragstart="rmHandleDragStart(index)"
+                      @dragover.prevent="handleDragOver"
+                      @drop="rmHandleDrop(index)"
+                    >
                       <input
                         readonly
                         type="text"
@@ -139,8 +191,22 @@
                       ></span>
                     </button>
                   </div>
+                  <button
+                    v-if="removedList.length"
+                    id="clearTask"
+                    @click="clearTask"
+                    class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300"
+                  >
+                    <span class="icon-clear"></span>
+                    Clear Completed
+                  </button>
                 </div>
-                <div id="done" class="plan" v-else-if="step === 4">
+              </div>
+              <div id="done" class="plan w-full" v-else-if="step === 4">
+                <div v-show="!done" class="text-5xl font-sans text-red">
+                  no data
+                </div>
+                <div v-show="done">
                   <template v-for="(item, index) in list">
                     <div
                       class="item py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0"
@@ -168,56 +234,79 @@
                       </button>
                     </div>
                   </template>
+                  <button
+                    v-if="list.length"
+                    id="clearTask"
+                    @click="clearTask"
+                    class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300"
+                  >
+                    <span class="icon-clear"></span>
+                    Clear Completed
+                  </button>
                 </div>
               </div>
-            </div>
-            <div id="todos" class="plan w-full">
-              <template v-if="step===1">
-                <div
-                  class="item py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0"
-                  v-for="(item, index) in list"
-                >
+
+              <div id="todos" class="plan w-full">
+                <template v-if="step===1">
                   <div
-                    class="flex items-center w-full"
-                    draggable="true"
-                    @dragstart="handleDragStart(index)"
-                    @dragover.prevent="handleDragOver"
-                    @drop="handleDrop(index)"
+                    class="item py-3 flex items-center justify-between relative after:absolute after:right-6 after:left-[51px] after:h-px after:bg-blue after:bottom-0"
+                    v-for="(item, index) in list"
                   >
-                    <i
-                      @click="doneTap(item.id)"
-                      :class="item.checked ? 'icon-checked text-orange'  : 'icon-checkbox text-gray-100'"
-                      class="cursor-pointer transition-color duration-300 text-[64px]"
-                    ></i>
+                    <div
+                      class="flex items-center w-full"
+                      draggable="true"
+                      @dragstart="handleDragStart(index)"
+                      @dragover.prevent="handleDragOver"
+                      @drop="handleDrop(index)"
+                    >
+                      <i
+                        @click="doneTap(item.id)"
+                        :class="item.checked ? 'icon-checked text-orange'  : 'icon-checkbox text-gray-100'"
+                        class="cursor-pointer transition-color duration-300 text-[64px]"
+                      ></i>
+                      <div class="relative w-full">
+                        <transition name="fade">
+                          <div
+                            v-if="item.checked"
+                            class="w-full absolute top-6 z-10 h-1 bg-gray-100"
+                          ></div>
+                        </transition>
+                        <input
+                          @input="editTask(index)"
+                          type="text"
+                          :readonly="item.isCompleted"
+                          v-model="item.title"
+                          id="input_plan"
+                          class="w-full relative z-0 bg-inherit outline-none text-3.5xl font-normal"
+                          :class="item.checked ? 'text-gray-100'  : 'text-dark'"
+                        />
+                      </div>
 
-                    <input
-                      @input="editTask(index)"
-                      type="text"
-                      :readonly="item.isCompleted"
-                      v-model="item.title"
-                      id="input_plan"
-                      class="w-full bg-inherit outline-none text-3.5xl font-normal"
-                      :class="item.checked ? 'text-gray-100 line-through'  : 'text-dark'"
-                    />
-
-                    <button @click="removedTab(item.id)" class="group w-1/12">
-                      <span
-                        class="icon-trash text-[32px] text-red opacity-30 hover:opacity-100 duration-300"
-                      ></span>
-                    </button>
+                      <button @click="removedTab(item.id)" class="group w-1/12">
+                        <span
+                          class="icon-trash text-[32px] text-red opacity-30 hover:opacity-100 duration-300"
+                        ></span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </template>
+                  <button
+                    v-if="list.length"
+                    id="clearTask"
+                    @click="clearTask"
+                    class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300"
+                  >
+                    <span class="icon-clear"></span>
+                    Clear Completed
+                  </button>
+                </template>
+              </div>
             </div>
-            <button
-              v-if="list.length"
-              id="clearTask"
-              @click="clearTask"
-              class="todos_clear_btn px-2.5 py-5 flex items-center gap-2.5 text-2xl font-normal leading-normal text-orange-300"
-            >
-              <span class="icon-clear"></span>
-              Clear Completed
-            </button>
+          </div>
+          <div
+            v-if="!list.length"
+            class="no_data w-full h-24 bg-amber-400 rounded-md flex justify-center items-center"
+          >
+            <h1 class="font-sans font-semibold text-6xl">No data</h1>
           </div>
         </div>
       </main>
